@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sonomika Patch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<script src="app/preferences.js?v=mobile-header"></script>
+<link rel="stylesheet" href="styles/app.css?v=dim-scene-controls">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <marker id="mkMid" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 1.5L7.5 5L2 8.5" fill="none" stroke="#8a8a86" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="mkMidS" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 1.5L7.5 5L2 8.5" fill="none" stroke="#8a8a86" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="mkEnd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1L10 5L0 9z" fill="#8a8a86"/></marker>
+  <marker id="mkEndS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 1L10 5L0 9z" fill="#8a8a86"/></marker>
+</defs></svg>
+<div class="dock" id="dock" role="group" aria-label="Patch view"><div class="seg" id="zoomc" role="group" aria-label="Zoom the patch"><button class="fld" id="zOut" aria-label="Zoom out" title="Zoom out (Shift for 1%)"><i data-ic="ZoomOut">−</i></button><button class="fld lcd" id="zVal" aria-label="Set custom zoom" title="Double-click to enter a zoom percentage. Arrow keys adjust by 1%." style="cursor:pointer;min-width:56px">100%</button><button class="fld" id="zIn" aria-label="Zoom in" title="Zoom in (Shift for 1%)"><i data-ic="ZoomIn">+</i></button></div><div class="dock-actions"><button class="fld" id="fitPatch" title="Arrange modules in a grid" aria-label="Arrange modules in a grid"><i data-ic="Grid2X2" aria-hidden="true">&#9638;</i></button><button class="fld" id="centerb" title="Center and fit the whole patch (C)" aria-label="Center the patch"><i data-ic="LocateFixed">CENTER</i></button><button class="fld" id="dockMixer" title="Toggle mixer" aria-label="Mixer" aria-controls="mixView" aria-pressed="false"><i data-ic="SlidersVertical">MIXER</i></button></div></div>
+<header class="topbar" aria-label="Transport">
+  <a class="brand" href="?view=patch&amp;patch=fibonacci-chance" data-route="fibonacci-chance" aria-label="Sonomika Patch" title="Open the current patch"><svg class="logo" viewBox="0 0 724.2 125.6" aria-hidden="true" fill="currentColor"><path d="M46.9,76.6l-14.8-3.5c-7.1-1.7-10.6-4.8-10.6-9.3s1.1-5.4,3.3-7.1c2.2-1.8,5.3-2.7,9.3-2.7s7.1,1,9.3,3.1c2.2,2,3.3,4.8,3.3,8.4h19.2c-.1-5.3-1.5-10-4.1-13.9-2.6-4-6.2-7.1-10.9-9.3s-10-3.3-16.1-3.3-11.9,1-16.8,3.1c-4.9,2-8.7,5-11.5,8.9-2.8,3.9-4.2,8.5-4.2,13.8s1.8,11.6,5.4,15.3c3.6,3.7,9.1,6.4,16.5,8l14.8,3.5c3.7.8,6.1,1.9,7.5,3.5,1.3,1.6,2,3.3,2,5.3,0,3-1.2,5.4-3.7,7.1-2.5,1.8-6.2,2.7-11,2.7s-8.1-1.1-10.6-3.2c-2.5-2.1-3.9-4.9-4-8.5H0c0,8.1,3,14.6,9,19.6,6,5,14.1,7.5,24.3,7.5s12.7-1.1,17.9-3.2c5.2-2.2,9.2-5.2,12.1-9.3,2.9-4,4.3-8.8,4.3-14.3s-1.7-11.2-5.2-14.6c-3.5-3.4-8.7-5.9-15.5-7.5h0Z"/><path d="M144.7,44.6c-6.6-3.7-14.1-5.5-22.6-5.5s-15.9,1.8-22.6,5.5c-6.6,3.7-11.8,8.7-15.6,15.2-3.8,6.5-5.6,14-5.6,22.5s1.9,16,5.6,22.5,9,11.5,15.6,15.2,14.2,5.5,22.6,5.5,16.1-1.8,22.6-5.5,11.8-8.7,15.5-15.2,5.6-14,5.6-22.5-1.9-16-5.6-22.5c-3.8-6.5-8.9-11.5-15.5-15.2ZM142.6,95.4c-2,3.8-4.8,6.7-8.3,8.8-3.5,2.1-7.6,3.2-12.3,3.2s-8.7-1.1-12.2-3.2-6.2-5-8.3-8.8c-2.1-3.8-3.1-8.1-3.1-13.1s1-9.5,3.1-13.2c2.1-3.7,4.8-6.6,8.3-8.7s7.6-3.2,12.2-3.2,8.7,1,12.3,3.2c3.5,2.1,6.3,5,8.3,8.7,2,3.7,3,8.1,3,13.2s-1,9.3-3,13.1Z"/><path d="M228.6,39c-5.5,0-10.6,1.2-15.3,3.5s-8.3,5.5-10.9,9.6l-1.7-10.6h-18.7v81.9h20.2v-44.1c0-6.6,1.8-11.9,5.3-15.9,3.5-4,8.5-6,14.8-6s9.5,1.7,12.6,5.1c3.1,3.4,4.6,8.5,4.6,15.3v45.6h20.2v-50.4c0-10.5-2.6-18.8-7.9-24.9-5.2-6.1-13-9.1-23.3-9.1h0Z"/><path d="M341.3,44.6c-6.6-3.7-14.1-5.5-22.6-5.5s-15.9,1.8-22.6,5.5c-6.6,3.7-11.8,8.7-15.6,15.2-3.8,6.5-5.6,14-5.6,22.5s1.9,16,5.6,22.5,9,11.5,15.6,15.2,14.1,5.5,22.6,5.5,16.1-1.8,22.6-5.5c6.6-3.7,11.8-8.7,15.5-15.2s5.6-14,5.6-22.5-1.9-16-5.6-22.5c-3.8-6.5-8.9-11.5-15.5-15.2h0ZM339.2,95.4c-2,3.8-4.8,6.7-8.3,8.8-3.5,2.1-7.6,3.2-12.3,3.2s-8.7-1.1-12.2-3.2-6.2-5-8.3-8.8c-2-3.8-3.1-8.1-3.1-13.1s1-9.5,3.1-13.2c2-3.7,4.8-6.6,8.3-8.7s7.5-3.2,12.2-3.2,8.7,1,12.3,3.2c3.5,2.1,6.3,5,8.3,8.7,2,3.7,3,8.1,3,13.2s-1,9.3-3,13.1Z"/><path d="M474.5,39c-7.2,0-13.3,1.9-18.3,5.6-3.6,2.7-6.2,6-7.9,10,0,0,0,0,0,0-1.8-4-4.4-7.3-7.7-10-4.6-3.8-10.5-5.6-17.7-5.6s-12.2,1.5-16.6,4.6c-3.3,2.3-5.9,4.8-7.6,7.7l-1.7-9.7h-18.6v81.9h20.2v-46.4c0-4.4.8-8.1,2.3-11,1.5-2.9,3.6-5.1,6.3-6.5s5.6-2.1,8.8-2.1c4.8,0,8.6,1.5,11.5,4.5,2.9,3,4.3,7.4,4.3,13.1v48.4h20.2v-46.4c0-4.5.8-8.2,2.3-11.1,1.5-2.9,3.6-5,6.2-6.5,2.6-1.4,5.4-2.2,8.5-2.2,4.9,0,8.8,1.5,11.7,4.6s4.4,7.5,4.4,13.3v48.3h20.1v-53.6c0-9.4-2.6-16.9-8-22.5-5.3-5.6-12.9-8.4-22.9-8.4h0Z"/><rect x="448.4" y="0" width="97.2" height="10.1"/><rect x="525.3" y="41.5" width="20.2" height="81.9"/><polygon points="618.7 41.5 586.8 75.8 586.8 0 566.8 0 566.8 123.4 586.8 123.4 586.8 101.3 598.8 88.9 620.2 123.4 643.4 123.4 612.9 74 644.1 41.5 618.7 41.5"/><path d="M719.9,54.5c-2.9-5.1-7-9-12.3-11.6-5.3-2.6-11.7-3.9-19.1-3.9s-13.7,1.2-19.3,3.7c-5.6,2.4-9.9,5.8-12.9,10.2-3,4.4-4.6,9.5-4.6,15.5h17.2c0-4.3,1.6-7.7,4.8-10s7.8-3.6,13.8-3.6,6.4.5,9,1.6c2.5,1,4.5,2.7,5.9,5,1.4,2.3,2.1,5.3,2.1,9v1.8l-24.5,2c-9.7.8-17.2,3.4-22.5,7.9-5.2,4.5-7.9,10.5-7.9,18s2.5,13.8,7.5,18.5c5,4.7,11.9,7.1,20.5,7.1s12.1-1.3,17.2-4c5-2.7,8.4-6.1,10.2-10.3l1.5,12.1h17.8v-49.8c0-7.6-1.4-14-4.3-19.2h0ZM704.6,90.2c0,6.3-1.8,11.2-5.6,14.8s-8.7,5.3-15,5.3-7.8-.9-10.3-2.8c-2.4-1.9-3.7-4.6-3.7-8.3s1.3-6,4-8c2.7-2,7.1-3.3,13.4-3.9l17.1-1.3v4.3h0Z"/></svg></a>
+  <div class="seg" id="viewseg" data-label="View" role="tablist" aria-label="View">
+    <button class="fld" id="vWires" role="tab" title="Wires"><i data-ic="Cable"></i></button><button class="fld" id="vPatch" role="tab" title="Patch"><i data-ic="Blocks"></i></button>
+  </div>
+  <div class="grp" id="bpmgrp" data-label="Tempo"><span class="lab" title="Tempo (BPM)"><i data-ic="Gauge">BPM</i></span><label class="fld lcd"><input id="bpm" type="number" min="100" max="150" value="128" aria-label="Tempo"></label></div>
+  <span class="fld lcd" id="pos" data-label="Position" aria-label="Position bar, beat, sixteenth">1. 1. 1</span>
+  <div class="transport-buttons"><div class="seg" id="transeg" data-label="Play / stop">
+    <button class="fld" id="play" aria-label="Play" title="Play / pause (Space)"><i data-ic="Play" class="fill">▶</i></button><button class="fld" id="stopb" aria-label="Stop and return to start" title="Stop"><i data-ic="Square" class="fill">■</i></button>
+  </div>
+  <button class="fld" id="loopb" data-label="Loop scene" title="Loop the scene that is playing (L)" aria-label="Loop scene" aria-pressed="false"><i data-ic="Repeat">LOOP</i></button>
+  </div>
+  <button class="fld" id="reseed" hidden title="New chance seed">SEED <span id="seedv">1597</span></button>
+  <button class="fld" id="hideUI" data-label="Hide the UI" title="Hide the top bar (H)" aria-label="Hide the top bar"><i data-ic="EyeOff">HIDE</i></button>
+  <button class="fld" id="skinb" data-label="Light / dark" title="Light / dark theme (T)" aria-label="Switch to light theme"><i data-ic="Sun">LIGHT</i></button>
+  <div class="menuw" id="menuw"><button class="fld" id="menub" aria-label="More options" aria-expanded="false" aria-controls="menup" title="More"><i data-ic="Menu">☰</i></button><div class="menup" id="menup" role="group" aria-label="More options" hidden><button class="fld" id="vSongs" type="button" aria-pressed="false" aria-label="Library" title="Library"><i data-ic="ListMusic">≡</i>Library</button><button class="fld" id="midib" type="button"><i data-ic="KeyboardMusic" aria-hidden="true"></i>MIDI</button><select id="frameSize" data-label="App size" aria-label="App size"><option value="">Fit window</option><option value="landscape">16:9 Landscape</option><option value="portrait">9:16 Portrait</option></select></div></div>
+  <div class="reads" hidden><span class="lab" id="rl">LOGISTIC r</span><span class="fld lcd" id="rv">3.62</span><span class="lab" id="xl">CHANCE x</span><span class="fld lcd" id="xv">0.500</span></div>
+</header>
+
+<main class="patch-index" id="library" hidden aria-labelledby="libraryTitle">
+  <div class="library-toolbar">
+    <nav class="library-history" aria-label="Library navigation">
+      <button class="fld" id="libraryBack" type="button" title="Back" aria-label="Back"><i data-ic="ArrowLeft">←</i></button>
+      <button class="fld" id="libraryUp" type="button" title="Up to Patches" aria-label="Up to Patches"><i data-ic="ArrowUp">↑</i></button>
+    </nav>
+    <div class="library-path" id="libraryPath" aria-label="Current location"></div>
+    <label class="library-search">
+      <i data-ic="Search" aria-hidden="true"></i>
+      <input id="librarySearch" type="search" placeholder="Search patches and modules" aria-label="Search patches and modules" aria-controls="libraryResults">
+    </label>
+  </div>
+  <div class="library-sidebar">
+    <h1 id="libraryTitle">Library</h1>
+    <nav class="library-nav" aria-label="Library folders">
+      <a class="fld" id="libraryPatches" href="?view=library" data-route="songs"><i data-ic="Folder" aria-hidden="true"></i>Patches</a>
+      <a class="fld" id="libraryModules" href="?view=modules" data-route="patches"><i data-ic="Folder" aria-hidden="true"></i>Modules</a>
+    </nav>
+  </div>
+  <div class="library-content" id="libraryContent">
+    <p id="librarySearchStatus" role="status" hidden></p>
+    <div id="libraryResults" hidden></div>
+    <div id="browser">
+      <div id="songList"></div>
+      <article class="detail" id="detail" aria-live="polite" tabindex="-1" hidden></article>
+    </div>
+    <div id="patchIndex" hidden><div id="patchGroups"></div></div>
+  </div>
+</main>
+
+<main id="midiView" hidden aria-labelledby="midiTitle">
+  <div class="library-toolbar">
+    <button class="fld" id="midiBack" type="button" title="Back" aria-label="Back"><i data-ic="ArrowLeft">←</i></button>
+    <h1 id="midiTitle">MIDI</h1>
+  </div>
+  <div class="library-content midip" id="midip"></div>
+</main>
+
+<main class="view" id="patchView" hidden aria-label="Patch">
+    <div class="visw" id="visw" hidden><div class="vis" id="vis"><canvas id="visc" role="img" aria-label="Four circles, each drawn from its own voice’s waveform: they wander apart in the random parts, gather in the groove and rotate in 3D later on"></canvas></div></div>
+    <div class="flock-visuals" id="flockVisuals" hidden></div>
+    <div class="scene-strip" id="sceneStrip">
+      <div class="scene-meta"><h1 class="fld scene-title" id="songTitle">Fibonacci</h1><span class="fld lcd" id="transportTime" role="group" aria-label="Elapsed time and total duration"><time id="elapsedTime" datetime="PT0S">0:00</time> / <time id="totalTime" datetime="PT0S">0:00</time></span></div>
+      <nav class="sections" id="sections" aria-label="Scenes: tap to jump"></nav>
+      <button class="unhide fld" id="showUI" aria-label="Show the top bar" title="Show the top bar (H)"><i data-ic="Eye">SHOW</i></button>
+    </div>
+  <div class="patch" id="patch"></div>
+  <div class="wires" id="wires" hidden></div>
+</main>
+
+<section class="view" id="mixView" hidden aria-label="Mixer"><div class="mixer" id="mixer" tabindex="0" role="region" aria-label="Mixer channels"></div><section class="mchain" id="mchain" tabindex="0" aria-label="Effects chain"></section></section>
+
+<script defer src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script defer src="app/icons.js"></script>
+<script defer src="patches/fibonacci/patch.js"></script>
+<script defer src="patches/memory/patch.js"></script>
+<script defer src="patches/security/patch.js"></script>
+<script defer src="patches/index.js"></script>
+<script defer src="patches/shared/visual-loop.js"></script>
+<script defer src="patches/shared/rain-visual.js"></script>
+<script defer src="modules/eq.js"></script>
+<script defer src="modules/glue.js"></script>
+<script defer src="modules/saturation.js"></script>
+<script defer src="modules/utility.js"></script>
+<script defer src="modules/vinyl.js"></script>
+<script defer src="modules/limiter.js"></script>
+<script defer src="modules/loudness.js"></script>
+<script defer src="modules/delay.js"></script>
+<script defer src="modules/reverb.js"></script>
+<script defer src="modules/index.js"></script>
+<script defer src="views/patch-view.js?v=visual-frames"></script>
+<script defer src="views/mixer.js?v=free-dialogue"></script>
+<script defer src="engine/audio.js?v=mixer-defaults"></script>
+<script defer src="views/live-ui.js?v=transport-duration"></script>
+<script defer src="views/library.js?v=patch-action-order"></script>
+<script defer src="app/portable-patch.js"></script>
+<script defer src="app/patch-files.js?v=paste-dialog"></script>
+<script defer src="app/app.js?v=frame-below-controls"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module" src="engine/visuals.js?v=visual-frames"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+try {
+  const {dataset}=document.documentElement;
+  if(localStorage.getItem('ff-skin')==='light')dataset.skin='light';
+  const frame=localStorage.getItem('ff-app-frame');
+  if(frame==='landscape'||frame==='portrait')dataset.frame=frame;
+} catch(e) {}
+
+function updateFrameScale(){
+  const root=document.documentElement;
+  const frame=root.dataset.frame;
+  const viewportHeight=window.visualViewport?.height??innerHeight;
+  const portrait=frame==='portrait';
+  const frameWidth=portrait?720:1280;
+  const scale=frame?Math.min(innerWidth/frameWidth,viewportHeight/(portrait?1280:720)):1;
+  root.style.setProperty('--frame-scale',scale);
+  root.style.setProperty('--top-ui-scale',1/scale);
+  root.toggleAttribute('data-compact-frame',Boolean(frame)&&frameWidth*scale<=440);
+}
+const frameScale=()=>document.documentElement.dataset.frame
+  ? document.body.getBoundingClientRect().width/document.body.offsetWidth || 1
+  : 1;
+new MutationObserver(updateFrameScale).observe(document.documentElement,{attributes:true,attributeFilter:['data-frame']});
+addEventListener('resize',updateFrameScale);
+updateFrameScale();
