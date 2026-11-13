@@ -3,6 +3,10 @@ const $=id=>document.getElementById(id);
 const NS='http://www.w3.org/2000/svg';
 const CW=6.6; // char width at 11px mono
 const nodeEls={};
+function layoutJitter(moduleIndex, axis) {
+  const value = Math.sin(moduleIndex * 127.1 + axis * 311.7) * 43758.5453;
+  return value - Math.floor(value);
+}
 function boxW(n){const [,t,, ,txt,len]=n;if(t==='obj'||t==='msg')return Math.max(28,txt.length*CW+10);if(t==='num')return (len||5)*CW+10;if(t==='tgl'||t==='bng')return 18;if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace'].includes(t))return n[5];return 0;}
 function boxH(n){if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace'].includes(n[1]))return n[6];return 18;}
 // draws one module's wires and boxes into an <svg> or <g>; returns the box positions in module coordinates
@@ -124,7 +128,7 @@ function renderWires(grid=false){const host=$('wires');WRW=host.clientWidth;cons
   const positions={};
   let gridTop=gridGap, rowHeight=0;
   canvasModules().forEach((m,k)=>{let col=0;colY.forEach((y,i)=>{if(y<colY[col])col=i;});
-    let X=Math.round(col*(W-mw)/(cols-1||1)+(hash(k,1)-.5)*34),Y=Math.round(colY[col]+hash(k,2)*30);colY[col]=Y+(m.h+20)*WSC+gap;
+    let X=Math.round(col*(W-mw)/(cols-1||1)+(layoutJitter(k,1)-.5)*34),Y=Math.round(colY[col]+layoutJitter(k,2)*30);colY[col]=Y+(m.h+20)*WSC+gap;
     const position=saved[m.id];
     if(grid){
       const column=k%gridCols;

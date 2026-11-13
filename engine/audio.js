@@ -215,6 +215,8 @@ let fxStep=null;function fxMax(k,v){if(fxStep)fxStep[k]=Math.max(fxStep[k]||0,v)
 // F minor, the classic techno key. Bass and percussion use its pentatonic (F Ab Bb C Eb), lead and pad the full scale.
 const MINP=[0,3,5,7,10],MINOR=[0,2,3,5,7,8,10],ROOT=29; // F1 = 43.65 Hz
 const psc=d=>MINP[((d%5)+5)%5]+12*Math.floor(d/5),msc=d=>MINOR[((d%7)+7)%7]+12*Math.floor(d/7); // degree → semitones across octaves
+const euclideanHit = (hits, steps, rotation, step) =>
+  hits > 0 && (((step + rotation) % steps + steps) % steps * hits) % steps < hits;
 function step(t){
   if(LOOPSI!=null){const st=SEC_START[LOOPSI]*16,en=st+PATCH.sections[LOOPSI].bars*16;if(stepIdx>=en||stepIdx<st)stepIdx=st;} // loop one section
   const bar=Math.floor(stepIdx/16),s=stepIdx%16;
@@ -252,7 +254,7 @@ P1.play=function(t,bar,s,S,ui){
   // hats build by Fibonacci numbers: 3, 5, 8, then 13 per bar, spread evenly (Euclid); they brighten across each section
   {const bi=bar-SEC_START[PATCH.sections.indexOf(S)],hc=S.hc[Math.min(bi,S.hc.length-1)],prog=(bi+s/16)/S.bars,openOn=bi>=S.oh&&s%4===2;
    if(on('hat')&&openOn){setLock('hat',s,1);hatHit(t,.22+.12*x,.42,.15,5600-1400*prog,true);ui.push(['hat.b'],['hat.car']);}
-   else if(on('hat')&&hc&&E(hc,16,hc===3||hc===5?2:0,s)){const acc=s%4===2,lv=(acc?.45:s%2?.2+.15*x:.3)*(.75+.25*prog);setLock('hat',s,lv/.45);
+   else if(on('hat')&&hc&&euclideanHit(hc,16,hc===3||hc===5?2:0,s)){const acc=s%4===2,lv=(acc?.45:s%2?.2+.15*x:.3)*(.75+.25*prog);setLock('hat',s,lv/.45);
      hatHit(t,acc?.05:.03,lv,acc?-.1:(s%8<4?-.3:.3)*(.4+x),7200-1800*prog,false);ui.push(['hat.b'],['hat.car']);}
    else setLock('hat',s,0);}
   // prime percussion: prime-numbered steps, tuned by the golden ratio
