@@ -215,7 +215,6 @@ function renderWires(grid=false){const host=$('wires');WRW=host.clientWidth;cons
     win.setAttribute('aria-label',monitor?monitor.title+' window':'Video window: drag to move, drag a corner to resize');
     if(monitor){win.classList.add('flock-window');body.append(monitor.element);}
     else{win.id='wwin';body.id='wbody';}
-    addVisualPopout(win,()=>body.querySelector('canvas'));
     const vcab=document.createElementNS(NS,'path'),vflow=document.createElementNS(NS,'g');
     vcab.setAttribute('class','cable sig');svg.append(vcab,vflow);let vkey='';
     const box={x:0,y:0,w:0,h:0};videoBoxes.push(box);
@@ -360,19 +359,6 @@ function renderWires(grid=false){const host=$('wires');WRW=host.clientWidth;cons
 
 }
 // the visual lives above the sections in the PATCH view, and inside the floating window in the WIRES view
-function addVisualPopout(container,source){
-  if(container.querySelector(':scope > .visual-popout'))return;
-  const button=document.createElement('button');
-  button.type='button';
-  button.className='fld visual-popout';
-  button.title='Pop out visual';
-  button.setAttribute('aria-label',button.title);
-  button.innerHTML=IC('ExternalLink','↗');
-  button.onpointerdown=event=>event.stopPropagation();
-  button.onclick=()=>openVisualDisplay([source()]);
-  container.appendChild(button);
-}
-
 function openAllVisuals(){
   const canvases=[...$('patchView').querySelectorAll('.wwin canvas,#flockVisuals canvas,#visc')]
     .filter(canvas=>canvas.getClientRects().length);
@@ -447,12 +433,10 @@ function placeVis(){const v=$('visw'),body=$('wbody'),grid=$('flockVisuals');
   if(monitors){
     v.hidden=true;
     if(!WIREMODE)grid.replaceChildren(...monitors().map(m=>{
-      addVisualPopout(m.element,()=>m.canvas);
       return m.element;
     }));
     return;
   }
-  addVisualPopout(v,()=>$('visc'));
   $('visc').setAttribute('aria-label',PATCH===P9?'Independent raindrops and ripples synchronized to sine tones':defaultVisualLabel);
   if(WIREMODE&&body){if(PATCH.visual){v.hidden=false;body.prepend(v);}else{v.hidden=true;body.insertAdjacentHTML('afterbegin','<canvas class="scope big" width="1120" height="630" aria-label="Oscilloscope of the output"></canvas>');}}
   else{const pv=$('patchView');if(v.parentNode!==pv)pv.insertBefore(v,$('sceneStrip'));v.hidden=!PATCH.visual;}}

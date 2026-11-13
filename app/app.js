@@ -327,7 +327,8 @@ function patchSettingsText(){
   const allVisuals=document.createElement('button');
   allVisuals.type='button';
   allVisuals.className='fld';
-  allVisuals.textContent='Open all visuals';
+  allVisuals.id='openVisuals';
+  allVisuals.textContent='Pop out visuals';
   allVisuals.onclick=()=>{
     if($('patchView').hidden)go(PATCH.id);
     openAllVisuals();

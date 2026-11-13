@@ -375,10 +375,6 @@ body:has(>#mixView:not([hidden]))>.dock{bottom:calc(var(--mixer-height,0px) + 8p
 .wbody{position:relative}.wbody .visw{margin:0;gap:0;height:100%}.wbody .vis{width:100%;height:100%;max-width:none;aspect-ratio:auto}
 .wbody canvas.scope.big{width:100%;height:100%;aspect-ratio:auto}
 .visw,.flock-monitor{position:relative}
-.visual-popout{position:absolute;right:4px;top:4px;z-index:3;opacity:0}
-.wwin:hover>.visual-popout,.visw:hover>.visual-popout,.flock-monitor:hover>.visual-popout,.visual-popout:focus-visible{opacity:1}
-.wwin .visw>.visual-popout,.wwin .flock-monitor>.visual-popout,body.ui-off .visual-popout{display:none}
-@media (hover:none){.visual-popout{opacity:1}}
 .wwin.held{outline:1px dashed var(--box);outline-offset:3px}
 .wbody canvas.scope{display:block}
 .patch{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(310px*var(--mz,1))),1fr));gap:14px;padding-top:14px}
