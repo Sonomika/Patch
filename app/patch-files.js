@@ -6,7 +6,7 @@ async function downloadPatchFile(){
   const snapshot = JSON.parse(patchSettingsText());
   const musicalKey = {
     'fibonacci-chance':'F-minor', 'coprime-drift':'A-major',
-    'life-from-sine':'A-major', 'mirror-pool':'D-dorian',
+    'life-from-sine':'A-major', 'two-ways':'D-dorian',
     'seven-riffles':'Eb-minor', flock:'D-hirajoshi', 'rain-lock':'F-minor',
     drizzle:'D-hirajoshi', dialogue:'unkeyed', olympus:'unkeyed'
   }[PATCH.id] ?? 'variable-key';

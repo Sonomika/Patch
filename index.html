@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
-<script src="app/preferences.js?v=mobile-header"></script>
+<script src="app/preferences.js?v=light-default"></script>
 <link rel="stylesheet" href="styles/app.css?v=visual-popout-menu">
 </head>
 <body>
@@ -94,7 +94,9 @@
 <script defer src="patches/fibonacci/patch.js"></script>
 <script defer src="patches/memory/patch.js"></script>
 <script defer src="patches/security/patch.js"></script>
-<script defer src="patches/index.js"></script>
+<script defer src="patches/twoways/data.js"></script>
+<script defer src="patches/twoways/patch.js"></script>
+<script defer src="patches/index.js?v=palindrome"></script>
 <script defer src="patches/shared/visual-loop.js"></script>
 <script defer src="patches/shared/rain-visual.js"></script>
 <script defer src="modules/eq.js"></script>
@@ -107,7 +109,7 @@
 <script defer src="modules/delay.js"></script>
 <script defer src="modules/reverb.js"></script>
 <script defer src="modules/index.js"></script>
-<script defer src="views/patch-view.js?v=visual-popout-menu"></script>
+<script defer src="views/patch-view.js?v=node-canvas"></script>
 <script defer src="views/mixer.js?v=free-dialogue"></script>
 <script defer src="engine/audio.js?v=fibonacci-rhythm"></script>
 <script defer src="views/live-ui.js?v=transport-duration"></script>
@@ -117,5 +119,6 @@
 <script defer src="app/app.js?v=visual-popout-menu"></script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module" src="engine/visuals.js?v=visual-frames"></script>
+<script type="module" src="patches/twoways/room3d.js"></script>
 </body>
 </html>

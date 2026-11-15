@@ -1,6 +1,7 @@
+const {dataset}=document.documentElement;
+dataset.skin='light';
 try {
-  const {dataset}=document.documentElement;
-  if(localStorage.getItem('ff-skin')==='light')dataset.skin='light';
+  if(localStorage.getItem('ff-skin')==='dark')delete dataset.skin;
   const frame=localStorage.getItem('ff-app-frame');
   if(frame==='landscape'||frame==='portrait')dataset.frame=frame;
 } catch(e) {}

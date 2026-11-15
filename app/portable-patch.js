@@ -49,6 +49,7 @@ async function fetchPortableResource(path,method){
 
 function portableAssets(patch){
   if(patch.backdrop)return [patch.backdrop];
+  if(patch===P12)return [TW_URL];
   if(patch===P11)return olLeakPhotos.slice(0,9).map(name=>'patches/security/images/'+name);
   return [];
 }

@@ -7,8 +7,8 @@ function layoutJitter(moduleIndex, axis) {
   const value = Math.sin(moduleIndex * 127.1 + axis * 311.7) * 43758.5453;
   return value - Math.floor(value);
 }
-function boxW(n){const [,t,, ,txt,len]=n;if(t==='obj'||t==='msg')return Math.max(28,txt.length*CW+10);if(t==='num')return (len||5)*CW+10;if(t==='tgl'||t==='bng')return 18;if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace'].includes(t))return n[5];return 0;}
-function boxH(n){if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace'].includes(n[1]))return n[6];return 18;}
+function boxW(n){const [,t,, ,txt,len]=n;if(t==='obj'||t==='msg')return Math.max(28,txt.length*CW+10);if(t==='num')return (len||5)*CW+10;if(t==='tgl'||t==='bng')return 18;if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace','canvas'].includes(t))return n[5];return 0;}
+function boxH(n){if(['arr','scope','grid','neck','move','vinyl-record','chord-bars','ribbon-trace','canvas'].includes(n[1]))return n[6];return 18;}
 // draws one module's wires and boxes into an <svg> or <g>; returns the box positions in module coordinates
 function drawModule(m,into){
     const pos={};m.nodes.forEach(n=>pos[n[0]]={x:n[2],y:n[3],w:boxW(n),h:boxH(n)});
@@ -33,6 +33,10 @@ function drawModule(m,into){
     else if(t==='ribbon-trace'){
       g.innerHTML=`<rect width="${w}" height="${h}" fill="#080808" stroke="var(--edge2)"/><path d="M8 47H276" stroke="#2c2c2c"/><path class="ribbon-pitch-guide" d="M8 ${ribbonRestY}H276M276 ${ribbonRestY-5}v10" fill="none" stroke="#92928e"/><path class="ribbon-contour" fill="#dededa"/>`;
     }
+    else if(t==='canvas'){
+      // a patch-drawn panel inside a module: the patch gets the canvas through PATCH.nodeCanvas(key, canvas)
+      g.innerHTML=`<rect width="${w}" height="${h}" fill="none" style="stroke:var(--edge2)"/><foreignObject width="${w}" height="${h}"><canvas xmlns="http://www.w3.org/1999/xhtml" class="ncanvas" style="display:block;width:100%;height:100%;touch-action:none"></canvas></foreignObject>`;
+    }
     else if(t==='chord-bars'){
       g.innerHTML=`<rect width="${w}" height="${h}" fill="#080808" stroke="var(--edge2)"/>`
         +Array.from({length:5},(_,i)=>`<rect class="chord-voice" x="${66+i*36}" y="45" width="8" height="4" fill="#e9e9e7"/>`).join('');
@@ -40,7 +44,7 @@ function drawModule(m,into){
         g.insertAdjacentHTML('beforeend',`<svg class="bird-flock-screen" width="${w}" height="${h}" overflow="hidden" aria-hidden="true" pointer-events="none"><path fill="none" stroke="#dededa" stroke-width="1" stroke-linecap="round"/></svg>`);
       }
     }
-    into.appendChild(g);nodeEls[m.id+'.'+id]=g;if(t==='grid')g.dataset.name=txt;
+    into.appendChild(g);nodeEls[m.id+'.'+id]=g;if(t==='canvas')PATCH.nodeCanvas?.(m.id+'.'+id,g.querySelector('canvas'),w,h);if(t==='grid')g.dataset.name=txt;
     if(t==='num'&&PATCH.edit&&PATCH.edit[m.id+'.'+id]){numEditor(g,m.id+'.'+id);const h=holds()[m.id+'.'+id];if(h!=null)g.querySelector('text').textContent=fmtN(m.id+'.'+id,h);}
     if(t==='msg'&&PATCH.msgs&&PATCH.msgs[m.id+'.'+id]){const fn=PATCH.msgs[m.id+'.'+id];g.classList.add('click');g.setAttribute('role','button');g.setAttribute('tabindex','0');g.setAttribute('aria-label',txt);
       const act=e=>{e.stopPropagation();e.preventDefault();flash(m.id+'.'+id);fn();};g.addEventListener('pointerdown',act);g.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')act(e);});}
@@ -90,7 +94,7 @@ function renderPatch({grid=false}={}){Object.keys(nodeEls).forEach(k=>delete nod
     canvasModules().forEach(m=>{
       const sec=document.createElement('section');sec.className='mod';sec.setAttribute('aria-label',m.title+' module');
       sec.innerHTML=`<header><b>${m.title.replace(/~$/,'')}</b></header>`;
-      const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox',`0 0 300 ${m.h}`);svg.setAttribute('role','img');svg.setAttribute('aria-label',m.title+' patch: '+m.sub);
+      const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox',`0 0 ${m.w??300} ${m.h}`);svg.setAttribute('role','img');svg.setAttribute('aria-label',m.title+' patch: '+m.sub);
       drawModule(m,svg);sec.appendChild(svg);host.appendChild(sec);});}
   placeVis();fitWires();paintToggles();
 }
@@ -140,7 +144,7 @@ function renderWires(grid=false){const host=$('wires');WRW=host.clientWidth;cons
     }else if(Array.isArray(position)){X=position[0]*W;Y=position[1];}
     else if(position){X=position.x;Y=position.y;}
     const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${X} ${Y}) scale(${WSC})`);g.setAttribute('class','wmod');
-    g.innerHTML=`<rect class="wframe" x="-6" y="-20" width="312" height="${m.h+26}"/><rect class="whead" x="-6" y="-20" width="312" height="20"/><text class="wtitle" x="0" y="-6">${m.title.replace(/~$/,'')}</text>`;
+    g.innerHTML=`<rect class="wframe" x="-6" y="-20" width="${(m.w??300)+12}" height="${m.h+26}"/><rect class="whead" x="-6" y="-20" width="${(m.w??300)+12}" height="20"/><text class="wtitle" x="0" y="-6">${m.title.replace(/~$/,'')}</text>`;
     let diagram=m;
     if(m.id==='out'&&PATCH.vinyl!==false){
       const feeds=m.wires.filter(([,target,signal])=>target==='dac'&&signal);
@@ -158,7 +162,7 @@ function renderWires(grid=false){const host=$('wires');WRW=host.clientWidth;cons
     extent.bottom=Math.max(extent.bottom,Math.ceil(bottom+24));
   }
   function includeModule(L){
-    includeBounds(L.X-6*WSC,L.Y-20*WSC,L.X+306*WSC,L.Y+(L.m.h+6)*WSC);
+    includeBounds(L.X-6*WSC,L.Y-20*WSC,L.X+((L.m.w??300)+6)*WSC,L.Y+(L.m.h+6)*WSC);
   }
   function sizeCanvas(){
     const {left,top,right,bottom}=extent,width=right-left,height=bottom-top;
