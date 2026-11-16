@@ -14,7 +14,7 @@
 /* light skin, after a Max patcher: pale grey canvas, dark object boxes with light text, dark window chrome on top */
 :root[data-skin="light"]{--bg:#d4d4d2;--box:#1a1a1a;--ink:#e9e9e7;--wire:#8a8a86;--dim:#62625e;--hot:#000;--panel:#e0e0de;--edge:#a6a6a3;--edge2:#a6a6a3;--fld:#e0e0de;
   --cab:#8a8a86;--cabs:#8a8a86;--cabv:#1a1a1a;--flash:#8a8a86;--body:#3a3a38;--ondim:#a6a6a3;--cell:#a6a6a3;--lv:#1a1a1a;color-scheme:light}
-:root[data-skin="light"] .topbar,:root[data-skin="light"] .unhide{--box:#e9e9e7;--ink:#1a1a1a;--dim:#8a8a86;--edge:#1a1a1a;--edge2:#3a3a38;--fld:#1a1a1a;--barbg:#1a1a1a;--hot:#e9e9e7;color:var(--box)}
+:root[data-skin="light"] .topbar{--box:#e9e9e7;--ink:#1a1a1a;--dim:#8a8a86;--edge:#1a1a1a;--edge2:#3a3a38;--fld:#1a1a1a;--barbg:#1a1a1a;--hot:#e9e9e7;color:var(--box)}
 :root[data-skin="light"] svg .num rect{fill:#1a1a1a;stroke:#1a1a1a}:root[data-skin="light"] svg .num text{fill:#e9e9e7}
 :root[data-skin="light"] svg .num.held rect{fill:#000;stroke:#000}:root[data-skin="light"] svg .num.held text{fill:#e9e9e7}
 *{box-sizing:border-box}
@@ -73,20 +73,6 @@ i.ic{display:inline-flex;font-style:normal}i.ic svg{width:15px;height:15px;strok
 .songname small{font-family:var(--mono);font-size:var(--font-small);color:var(--dim);margin-left:8px;letter-spacing:.04em}
 .reads{display:flex;align-items:center;gap:4px}
 .unhide{display:none;grid-column:3;grid-row:1;justify-self:end}
-body.ui-off .topbar{display:none}
-body.ui-off .scene-strip{
-  position:fixed;
-  z-index:20;
-  inset:max(8px,env(safe-area-inset-top,0px)) 0 auto 0;
-  margin:0;
-  border-bottom:0;
-}
-body.ui-off .unhide{display:inline-flex}
-html.recording-sequence #showUI{display:none}
-html:has(body.ui-off),body.ui-off{overflow:hidden;overscroll-behavior:none}
-body.ui-off .wires{position:fixed;inset:0;margin:0;overflow:hidden;z-index:5;background:var(--bg);touch-action:none;min-height:0!important;cursor:default}
-body.ui-off .wires.grab,body.ui-off .wires.grab .wwin{cursor:grab}
-body.ui-off .wires.panning,body.ui-off .wires.panning .wwin{cursor:grabbing}
 .wpan{position:relative;transform-origin:0 0}
 .mixer{display:grid;grid-auto-flow:column;grid-auto-columns:132px;grid-template-rows:repeat(5,auto);align-content:start;gap:10px;overflow-x:auto;padding:16px 0 20px}
 .ch{grid-row:1 / -1;display:grid;grid-template-rows:subgrid;padding:12px 10px;border:1px solid var(--edge2);background:var(--panel)}
@@ -229,7 +215,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .vis{position:relative;overflow:hidden}
 .vis canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
 .wires{position:relative;overflow:hidden;touch-action:none;overscroll-behavior:none}
-body.ui-off .wires{height:auto!important}
 .wsvg{position:absolute;display:block;overflow:visible}
 .patch{touch-action:pan-x pan-y}
 .wsvg .wframe{fill:var(--panel);stroke:var(--edge2)}
@@ -267,7 +252,6 @@ body:has(>#midiView:not([hidden]))>.topbar{flex:none}
 .scene-title{margin:0;cursor:default}
 #zoomc{grid-column:1;justify-self:start}
 .dock-actions{grid-column:3;justify-self:end;display:flex;flex-direction:column;gap:6px}
-body.ui-off .scene-strip .sec:not(.now){background:var(--fld)}
 .sections.dragging,.sections.dragging .sec{cursor:grabbing}
 .ctxm{position:fixed;z-index:60;min-width:230px;padding:4px;background:#1a1a1a;border:1px solid #3a3a38;color:#e9e9e7;font-size:var(--font-small)}
 .ctxm .ctxh{padding:6px 8px 4px;color:#8a8a86;font-size:var(--font-small);letter-spacing:.08em}

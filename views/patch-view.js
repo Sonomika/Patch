@@ -74,7 +74,7 @@ let panSaveT=0;
 // with or without the top bar
 const panMode=()=>WIREMODE;
 const appFrame=()=>document.documentElement.dataset.frame?document.body.getBoundingClientRect():{left:0,top:0,right:innerWidth,bottom:innerHeight,width:innerWidth,height:innerHeight};
-function fitWires(){const h=$('wires');if(!h||!WIREMODE||h.hidden)return;if(document.body.classList.contains('ui-off')){h.style.height='';return;}
+function fitWires(){const h=$('wires');if(!h||!WIREMODE||h.hidden)return;
   if(!$('mixView').hidden){
     h.style.height=Math.max(0,$('patchView').getBoundingClientRect().bottom-h.getBoundingClientRect().top)/frameScale()+'px';
     return;

@@ -6,7 +6,7 @@ function framePatch({zoomIn=false}={}){
   const frame=appFrame(), canvas=host.getBoundingClientRect();
   const dock=$('zoomc').getBoundingClientRect();
   const left=Math.max(frame.left,canvas.left), right=Math.min(frame.right,canvas.right);
-  const topControls=[...document.querySelectorAll('.topbar,#sceneStrip,#showUI')]
+  const topControls=[...document.querySelectorAll('.topbar,#sceneStrip')]
     .filter(control=>control.getClientRects().length);
   const top=Math.max(frame.top,canvas.top,...topControls.map(control=>control.getBoundingClientRect().bottom));
   const bottom=Math.min(frame.bottom,canvas.bottom,dock.height?dock.top:Infinity);
@@ -60,7 +60,7 @@ async function startVideoRecording(button){
   video.playsInline=true;
   const drawing=canvas.getContext('2d',{alpha:false});
   const chunks=[];
-  let stream,audioTap,tabStream,frameRequest,pointer,restoreLoop,restoreUI,watch,finish;
+  let stream,audioTap,tabStream,frameRequest,pointer,restoreLoop,watch,finish;
   const root=document.documentElement;
   const movePointer=event=>{
     pointer.hidden=event.pointerType==='touch';
@@ -70,7 +70,7 @@ async function startVideoRecording(button){
   const cleanup=()=>{
     clearInterval(watch);
     clearTimeout(finish);
-    root.classList.remove('capture-app','recording-sequence');
+    root.classList.remove('capture-app');
     if(pointer){
       window.removeEventListener('pointermove',movePointer);
       window.removeEventListener('blur',hidePointer);
@@ -86,7 +86,6 @@ async function startVideoRecording(button){
     videoRecording=null;
     videoCapturePending=false;
     if(restoreLoop&&PATCH===patch)restoreLoop();
-    restoreUI?.();
   };
   videoCapturePending=true;
   button.disabled=true;
@@ -127,14 +126,8 @@ async function startVideoRecording(button){
     await video.play();
     if(PATCH!==patch||track.readyState==='ended')throw new DOMException('Recording cancelled','AbortError');
     if(!$('library').hidden||!$('midiView').hidden)go(patch.id);
-    if(!document.body.classList.contains('ui-off')){
-      restoreUI=()=>uiOff(false);
-      uiOff(true);
-    }
-    root.classList.add('recording-sequence');
-    // Let the hidden layout reach the tab capture before recording.
+    // Let the app repaint before recording.
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-    if(!document.body.classList.contains('ui-off'))throw new DOMException('Recording cancelled','AbortError');
     if(PATCH!==patch||track.readyState==='ended')throw new DOMException('Recording cancelled','AbortError');
     const frame=document.documentElement.dataset.frame;
     const outputSize=frame==='portrait'?[1080,1920]:frame==='landscape'?[1920,1080]:null;
@@ -257,7 +250,7 @@ function patchSettingsText(){
   closeMenu.innerHTML='<i data-ic="X" aria-hidden="true">×</i>';
   closeMenu.onclick=()=>setMenu(false);
   menu.prepend(closeMenu);
-  for(const id of ['viewseg','pos','bpmgrp','hideUI','skinb','frameSize']){
+  for(const id of ['viewseg','pos','bpmgrp','skinb','frameSize']){
     const control=$(id);
     const row=document.createElement('div');
     row.className='mrow';
@@ -319,7 +312,7 @@ function patchSettingsText(){
       setMenu(false);
       exportButton.disabled=true;
       try{
-        const {showPalindromeExport}=await import('./video-export.js?v=6');
+        const {showPalindromeExport}=await import('./video-export.js?v=8');
         showPalindromeExport();
       }catch(error){
         alert('Could not open video export: '+error.message);
@@ -355,7 +348,7 @@ function patchSettingsText(){
   };
   button.onclick=()=>setMenu(menu.inert);
   menu.addEventListener('click',e=>{
-    if(e.target.closest('#hideUI,#skinb,#vSongs,#midib,#viewseg button'))setMenu(false);
+    if(e.target.closest('#skinb,#vSongs,#midib,#viewseg button'))setMenu(false);
   });
   addEventListener('pointerdown',e=>{
     if(!menu.inert&&!e.target.closest('.menuw,#menup,.numtype'))setMenu(false);
@@ -420,17 +413,7 @@ $('midiBack').onclick=()=>{
 function setSkin(light){if(light)document.documentElement.dataset.skin='light';else delete document.documentElement.dataset.skin;try{localStorage.setItem('ff-skin',light?'light':'dark');}catch(e){}
   const b=$('skinb');b.setAttribute('aria-label',light?'Switch to dark theme':'Switch to light theme');b.innerHTML=`<i data-ic="${light?'Moon':'Sun'}">${light?'DARK':'LIGHT'}</i>`;fillIcons(b);}
 $('skinb').onclick=()=>setSkin(document.documentElement.dataset.skin!=='light');
-const uiOff=on=>{
-  try{localStorage.setItem('ff-ui-off',on?'1':'0');}catch(e){} // remembered across refreshes
-  if(on&&VIEW==='mixer')go(PATCH.id+(WIREMODE?'':'-patch'));
-  document.body.classList.toggle('ui-off',on&&$('library').hidden&&$('midiView').hidden);
-  setTimeout(fitWires,0);applyPan();if(WIREMODE&&WZ)WZ.apply();
-};
-$('hideUI').onclick=()=>uiOff(true);$('showUI').onclick=()=>uiOff(false);
-// bring back a hidden top bar after a refresh (not in the library or the mixer, where it always shows)
-try{if(!exportFrame&&localStorage.getItem('ff-ui-off')==='1')setTimeout(()=>{if($('library').hidden&&VIEW!=='mixer')uiOff(true);},0);}catch(e){}
 document.addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;
-  if(e.key==='h'||e.key==='H'){uiOff(!document.body.classList.contains('ui-off'));}
   if((e.key==='r'||e.key==='R')&&!e.ctrlKey&&!e.metaKey){ // record video, even with the top bar hidden
     document.querySelector('button[data-record="sequence"]')?.click();
   }
@@ -457,12 +440,11 @@ $('bpm').onchange=e=>{if(PATCH.stepSeconds)return;PATCH.bpm=Math.max(100,Math.mi
 document.addEventListener('keydown',e=>{if(e.code!=='Space'||!(e.target===document.body||e.target.classList.contains('row')||e.target.closest('.wires')))return;e.preventDefault();
   if(!panMode()){if(!e.repeat)toggleplay();return;}if(!SPACE){SPACE=true;SPACED=false;$('wires').classList.add('grab');}});
 document.addEventListener('keyup',e=>{if(e.code!=='Space'||!SPACE)return;SPACE=false;$('wires').classList.remove('grab');if(!SPACED)toggleplay();});
-// hide mode: drag with Space held, or on empty canvas, to pan; plain wheel / two-finger scroll pans; ctrl + wheel still zooms
+// Drag the empty canvas or hold Space to pan. Ctrl + wheel zooms.
 {const host=$('wires');
   host.addEventListener('pointerdown',e=>{if(!WIREMODE||e.button>1)return;const onWin=e.target.closest('.wwin,.wmod');if(onWin&&!SPACE&&e.button!==1)return;
     if(e.pointerType==='touch'&&e.isPrimary===false)return;
     e.preventDefault();e.stopPropagation();SPACED=true;const pm=panMode(),st={x:e.clientX,y:e.clientY,px:PAN.x,py:PAN.y,sl:host.scrollLeft,sy:scrollY};host.classList.add('panning');
-    // hide mode moves the canvas; with the top bar showing, a drag on empty canvas scrolls it (sideways inside the patch, up/down the page)
     const mv=ev=>{if(pm){PAN.x=st.px+(ev.clientX-st.x)/frameScale();PAN.y=st.py+(ev.clientY-st.y)/frameScale();applyPan();}else{host.scrollLeft=st.sl-(ev.clientX-st.x);scrollTo(scrollX,st.sy-(ev.clientY-st.y));}};
     const up=()=>{host.classList.remove('panning');removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);};
     addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up);},true);
@@ -483,6 +465,6 @@ if(location.hash)go(initialRoute,true);else route();
 }
 scopeLoop();visLoop();meterLoop();
 if(exportFrame){
-  window.preparePalindromeVideo=(...args)=>import('./video-export.js?v=6')
+  window.preparePalindromeVideo=(...args)=>import('./video-export.js?v=8')
     .then(({preparePalindromeVideo})=>preparePalindromeVideo(...args));
 }

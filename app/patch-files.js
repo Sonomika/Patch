@@ -112,7 +112,6 @@ function applyPatchSnapshot(text){
     localStorage.setItem(VIDEO_LAYOUT_KEY,JSON.stringify(videoLayouts));
   }catch(e){}
   saveMix();
-  uiOff(false);
   loadPatch(patch);
   applyPan();
   const suffix=layout.view==='patch'?'-patch':layout.view==='mixer'?'-mixer':'';

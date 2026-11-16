@@ -10,7 +10,6 @@ export function showPalindromeExport(){
     topScale:root.style.getPropertyValue('--top-ui-scale'),
     compact:root.hasAttribute('data-compact-frame'),
     skin:root.dataset.skin,
-    eyeMode:document.body.classList.contains('ui-off'),
     wires:WIREMODE,
     scroll:frame?document.body.scrollTop:window.scrollY,
     sceneScroll:$('sections').scrollLeft,
@@ -163,9 +162,10 @@ export async function preparePalindromeVideo(signal,layout,pixelRatio){
   updateFrameScale();
   root.style.setProperty('--top-ui-scale',layout.topScale);
   root.toggleAttribute('data-compact-frame',layout.compact);
-  document.body.classList.toggle('ui-off',layout.eyeMode);
-  root.classList.add('recording-sequence');
-  $('menub').style.visibility='hidden';
+  root.style.overflow='hidden';
+  document.body.style.overflow='hidden';
+  root.style.scrollbarWidth='none';
+  document.body.style.scrollbarWidth='none';
   TW.mode='fwd';
   TW.dir=1;
   TW.speed=1;
@@ -182,7 +182,6 @@ export async function preparePalindromeVideo(signal,layout,pixelRatio){
     const content=$('patchView');
     content.style.position='relative';
     content.style.top=-layout.scroll+'px';
-    if(layout.frame)document.body.style.overflow='hidden';
   }
   $('sections').scrollLeft=layout.sceneScroll;
   paintTransportTime(0);
@@ -224,7 +223,7 @@ export async function preparePalindromeVideo(signal,layout,pixelRatio){
   const view=layout.wires?$('wires'):$('patchView');
   const viewRect=view.getBoundingClientRect();
   const topbar=document.querySelector('.topbar').getBoundingClientRect();
-  const clipTop=Math.max(viewRect.top,topbar.bottom,layout.eyeMode?0:strip.getBoundingClientRect().bottom);
+  const clipTop=Math.max(viewRect.top,topbar.bottom,strip.getBoundingClientRect().bottom);
   for(const [index,section] of P12.sections.entries()){
     signal.throwIfAborted();
     selectScene(index);
@@ -232,7 +231,10 @@ export async function preparePalindromeVideo(signal,layout,pixelRatio){
     const rect=button.getBoundingClientRect();
     const color=getComputedStyle(button).color;
     const duration=section.bars*16*TW_SD;
-    const still=await toCanvas(document.body,{...snapshotOptions,backgroundColor:background,filter});
+    const still=await toCanvas(document.body,{
+      ...snapshotOptions,backgroundColor:background,filter,
+      style:{overflow:'hidden',scrollbarWidth:'none'}
+    });
     scenes.push({start,end:start+duration,duration,rect,color,still});
     start+=duration;
   }

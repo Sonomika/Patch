@@ -162,7 +162,6 @@ function showView(v,showPatchDetails=false,mixerGrid=false){VIEW=v;setTimeout(fi
   const inLibrary=v==='songs'||v==='index';
   const mixerOpen=v==='mixer';
   const midiOpen=v==='midi';
-  if(inLibrary||mixerOpen||midiOpen)document.body.classList.remove('ui-off');
   if(!midiOpen)LEARN=null;
   $('midiView').hidden=!midiOpen;
   if(midiOpen)renderMidi();
