@@ -40,22 +40,7 @@ $('fitPatch').onclick=()=>{
 };
 /* Keep secondary controls in the menu at every app size. */
 let videoRecording=null,videoCapturePending=false;
-// Recording a whole song: after Record (menu or R), the next play starts from the top,
-// and the recording stops by itself 1.5 s after the song ends.
-{const startPlain=start;
-  start=function(){
-    const armed=videoRecording?.armed;
-    if(!armed)return startPlain();
-    videoRecording.armed=null;
-    stepIdx=0;PATCH.reset&&PATCH.reset();
-    armed.button.textContent='Recording the song… (Stop recording to cut short)';
-    startPlain();
-    const watch=setInterval(()=>{
-      if(playing)return;clearInterval(watch);
-      setTimeout(()=>{if(armed.recorder.state!=='inactive'){armed.button.disabled=true;armed.button.textContent='Saving video…';armed.recorder.stop();}},1500);
-    },200);
-  };}
-async function startVideoRecording(button,mode='until'){
+async function startVideoRecording(button){
   if(videoRecording||videoCapturePending)return;
   const patch=PATCH;
   const idle=button.dataset.label||'Record video';
@@ -66,8 +51,8 @@ async function startVideoRecording(button,mode='until'){
   }
   const mp4='video/mp4;codecs="avc1,mp4a.40.2"';
   const mimeType=[mp4,'video/webm;codecs=vp8,opus','video/webm'].find(type=>MediaRecorder.isTypeSupported(type));
-  if(!mimeType||(mode==='download'&&mimeType!==mp4)){
-    button.textContent=mode==='download'?'MP4 with AAC unavailable in this browser':'Recording format unavailable';
+  if(!mimeType){
+    button.textContent='Recording format unavailable';
     return;
   }
   const video=document.createElement('video');
@@ -75,7 +60,7 @@ async function startVideoRecording(button,mode='until'){
   video.playsInline=true;
   const drawing=canvas.getContext('2d',{alpha:false});
   const chunks=[];
-  let stream,audioTap,tabStream,frameRequest,pointer,restoreLoop;
+  let stream,audioTap,tabStream,frameRequest,pointer,restoreLoop,restoreUI,watch,finish;
   const root=document.documentElement;
   const movePointer=event=>{
     pointer.hidden=event.pointerType==='touch';
@@ -83,7 +68,9 @@ async function startVideoRecording(button,mode='until'){
   };
   const hidePointer=()=>{pointer.hidden=true;};
   const cleanup=()=>{
-    root.classList.remove('capture-app');
+    clearInterval(watch);
+    clearTimeout(finish);
+    root.classList.remove('capture-app','recording-sequence');
     if(pointer){
       window.removeEventListener('pointermove',movePointer);
       window.removeEventListener('blur',hidePointer);
@@ -99,6 +86,7 @@ async function startVideoRecording(button,mode='until'){
     videoRecording=null;
     videoCapturePending=false;
     if(restoreLoop&&PATCH===patch)restoreLoop();
+    restoreUI?.();
   };
   videoCapturePending=true;
   button.disabled=true;
@@ -138,12 +126,15 @@ async function startVideoRecording(button,mode='until'){
     video.srcObject=tabStream;
     await video.play();
     if(PATCH!==patch||track.readyState==='ended')throw new DOMException('Recording cancelled','AbortError');
-    if(mode==='download'){
+    if(!$('library').hidden||!$('midiView').hidden)go(patch.id);
+    if(!document.body.classList.contains('ui-off')){
+      restoreUI=()=>uiOff(false);
       uiOff(true);
-      // Allow the hidden layout to paint and reach the tab capture before encoding.
-      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-      if(!document.body.classList.contains('ui-off'))throw new DOMException('Recording cancelled','AbortError');
     }
+    root.classList.add('recording-sequence');
+    // Let the hidden layout reach the tab capture before recording.
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    if(!document.body.classList.contains('ui-off'))throw new DOMException('Recording cancelled','AbortError');
     if(PATCH!==patch||track.readyState==='ended')throw new DOMException('Recording cancelled','AbortError');
     const frame=document.documentElement.dataset.frame;
     const outputSize=frame==='portrait'?[1080,1920]:frame==='landscape'?[1920,1080]:null;
@@ -177,7 +168,7 @@ async function startVideoRecording(button,mode='until'){
     audioTap=ctx.createMediaStreamDestination();
     MST.trim.connect(audioTap);
     audioTap.stream.getAudioTracks().forEach(track=>stream.addTrack(track));
-    const recorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:mode==='download'?8_000_000:20_000_000,audioBitsPerSecond:192_000});
+    const recorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:20_000_000,audioBitsPerSecond:192_000});
     const title=PATCH.title.toLowerCase();
     let failed=false;
     recorder.ondataavailable=event=>{if(event.data.size)chunks.push(event.data);};
@@ -185,7 +176,6 @@ async function startVideoRecording(button,mode='until'){
     recorder.onstop=()=>{
       cleanup();
       button.disabled=false;
-      document.querySelectorAll('button[data-record]').forEach(b=>{b.disabled=false;b.textContent=b.dataset.label;});
       button.textContent=failed||!chunks.length?'Recording failed · retry':idle;
       if(failed||!chunks.length)return;
       const type=recorder.mimeType||chunks[0].type||'video/webm';
@@ -196,30 +186,33 @@ async function startVideoRecording(button,mode='until'){
       link.click();
       setTimeout(()=>URL.revokeObjectURL(url),30000);
     };
+    const previousLoop=LOOPSI;
+    restoreLoop=()=>{LOOPSI=previousLoop;paintLoop();};
+    LOOPSI=null;
+    paintLoop();
+    if(playing)stop();
+    stepIdx=0;
+    patch.reset?.();
+
     recorder.start(1000);
     track.addEventListener('ended',()=>{if(recorder.state!=='inactive')recorder.stop();},{once:true});
     videoRecording={recorder};
     videoCapturePending=false;
-    if(mode==='download'){
-      const previousLoop=LOOPSI;
-      restoreLoop=()=>{LOOPSI=previousLoop;paintLoop();};
-      LOOPSI=null;
-      paintLoop();
-      if(playing)stop();
-      videoRecording.armed={button,recorder};
-      start();
-      return;
-    }
-    if(mode==='sequence'){ // record the whole song from the top, then stop by itself
-      videoRecording.armed={button,recorder};
-      button.disabled=false;
-      if(playing){stop();start();return;}   // already playing: restart from the top straight away
-      button.textContent='Armed · press Space or ▶ to record the song';
-      return;
-    }
     button.disabled=false;
     button.textContent='Stop recording';
+    start();
+    watch=setInterval(()=>{
+      if(playing)return;
+      clearInterval(watch);
+      finish=setTimeout(()=>{
+        if(recorder.state!=='inactive')recorder.stop();
+      },1500);
+    },200);
   }catch(e){
+    if(videoRecording?.recorder.state==='recording'){
+      videoRecording.recorder.onstop=null;
+      videoRecording.recorder.stop();
+    }
     cleanup();
     button.disabled=false;
     button.textContent=e.name==='NotAllowedError'||e.name==='AbortError'?idle:e.name==='CursorCaptureUnavailable'?'Cursor-free recording unavailable':'Recording failed · choose this tab';
@@ -299,31 +292,44 @@ function patchSettingsText(){
   };
   menu.appendChild(copySettings);
   bindPatchFiles(menu,setMenu);
-  const recordButton=(label,mode)=>{
-    const button=document.createElement('button');
-    button.type='button';button.className='fld';button.textContent=label;button.dataset.label=label;button.dataset.record=mode;
-    button.setAttribute('aria-live','polite');
-    button.onclick=()=>{
-      if(!videoRecording){setMenu(false);startVideoRecording(button,mode);return;}
-      if(videoRecording.recorder.state!=='inactive'){
-        button.disabled=true;
-        button.textContent='Saving video…';
-        videoRecording.recorder.stop();
+  const recordButton=document.createElement('button');
+  recordButton.type='button';
+  recordButton.hidden=true;
+  recordButton.className='fld';
+  recordButton.dataset.label=recordButton.textContent='Record sequence';
+  recordButton.dataset.record='sequence';
+  recordButton.setAttribute('aria-live','polite');
+  recordButton.onclick=()=>{
+    if(!videoRecording){
+      setMenu(false);
+      startVideoRecording(recordButton);
+    }else if(videoRecording.recorder.state!=='inactive'){
+      recordButton.disabled=true;
+      recordButton.textContent='Saving video…';
+      videoRecording.recorder.stop();
+    }
+  };
+  menu.appendChild(recordButton);
+  if(typeof PORTABLE_PATCH==='undefined'&&!exportFrame){
+    const exportButton=document.createElement('button');
+    exportButton.type='button';
+    exportButton.className='fld';
+    exportButton.textContent='Export MP4';
+    exportButton.onclick=async()=>{
+      setMenu(false);
+      exportButton.disabled=true;
+      try{
+        const {showPalindromeExport}=await import('./video-export.js?v=6');
+        showPalindromeExport();
+      }catch(error){
+        alert('Could not open video export: '+error.message);
+      }finally{
+        exportButton.disabled=false;
       }
     };
-    menu.appendChild(button);
-    return button;
-  };
-  recordButton('Record sequence','sequence');     // the whole song from the top, stops by itself
-  const downloadVideo=document.createElement('button');
-  downloadVideo.id='downloadSecurityVideo';
-  downloadVideo.type='button';
-  downloadVideo.className='fld';
-  downloadVideo.dataset.label=downloadVideo.textContent='Download video';
-  downloadVideo.hidden=true;
-  downloadVideo.dataset.record='download';
-  downloadVideo.onclick=()=>{setMenu(false);startVideoRecording(downloadVideo,'download');};
-  menu.appendChild(downloadVideo);
+    menu.appendChild(exportButton);
+    button.addEventListener('click',()=>{exportButton.hidden=PATCH.id!=='two-ways';});
+  }
   const allVisuals=document.createElement('button');
   allVisuals.type='button';
   allVisuals.className='fld';
@@ -422,11 +428,12 @@ const uiOff=on=>{
 };
 $('hideUI').onclick=()=>uiOff(true);$('showUI').onclick=()=>uiOff(false);
 // bring back a hidden top bar after a refresh (not in the library or the mixer, where it always shows)
-try{if(localStorage.getItem('ff-ui-off')==='1')setTimeout(()=>{if($('library').hidden&&VIEW!=='mixer')uiOff(true);},0);}catch(e){}
+try{if(!exportFrame&&localStorage.getItem('ff-ui-off')==='1')setTimeout(()=>{if($('library').hidden&&VIEW!=='mixer')uiOff(true);},0);}catch(e){}
 document.addEventListener('keydown',e=>{if(e.target.matches('input,select'))return;
   if(e.key==='h'||e.key==='H'){uiOff(!document.body.classList.contains('ui-off'));}
   if((e.key==='r'||e.key==='R')&&!e.ctrlKey&&!e.metaKey){ // record video, even with the top bar hidden
-    const rec=videoRecording?[...document.querySelectorAll('button[data-record]')].find(x=>!x.disabled&&x.textContent!==x.dataset.label):document.querySelector(PATCH.id==='olympus'?'button[data-record="download"]':'button[data-record="sequence"]');if(rec)rec.click();}
+    document.querySelector('button[data-record="sequence"]')?.click();
+  }
   if(e.key==='l'||e.key==='L')toggleLoop();
   if((e.key==='c'||e.key==='C')&&!e.ctrlKey&&!e.metaKey)centerPatch();
   if((e.key==='t'||e.key==='T')&&!e.ctrlKey&&!e.metaKey)setSkin(document.documentElement.dataset.skin!=='light');
@@ -475,3 +482,7 @@ SEL=PATCH;renderList();renderDetail();
 if(location.hash)go(initialRoute,true);else route();
 }
 scopeLoop();visLoop();meterLoop();
+if(exportFrame){
+  window.preparePalindromeVideo=(...args)=>import('./video-export.js?v=6')
+    .then(({preparePalindromeVideo})=>preparePalindromeVideo(...args));
+}

@@ -284,6 +284,7 @@ function twDrawDeck(view,p,dir){
 }
 
 function twAnimate(){
+  if(exportFrame)return;
   TW.frame=requestAnimationFrame(twAnimate);
   if(PATCH!==P12||(!TW.views&&!TW.deck))return;
   const p=twPos(),dir=twDirNow();

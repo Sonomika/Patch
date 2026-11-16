@@ -1,5 +1,6 @@
 const {dataset}=document.documentElement;
 dataset.skin='light';
+const exportFrame=window.parent!==window&&new URLSearchParams(location.search).has('render-video');
 try {
   if(localStorage.getItem('ff-skin')==='dark')delete dataset.skin;
   const frame=localStorage.getItem('ff-app-frame');

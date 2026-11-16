@@ -255,7 +255,6 @@ function route(){const h=pageRoute().replace(/-wires$/,''),grid=h.endsWith('-pat
 const ARTIST='SONOMIKA';
 function loadPatch(P){if(playing)stop();if(LUFS.matching)LUFS.match(false);LUFS.reset();if(P!==PATCH){mixerSelection='master';mixerSolos.clear();}PATCH=P;LEARN=null;setTimeout(renderMidi);$('songTitle').textContent=P.title.charAt(0)+P.title.slice(1).toLowerCase();stepIdx=0;computeSections();P.reset();
   if(bus?.drizzleReverb)bus.drizzleReverb.wet.gain.setTargetAtTime(P===P9?1.8:0,ctx.currentTime,.04);
-  $('downloadSecurityVideo').hidden=P.id!=='olympus';
   $('bpmgrp').hidden=Boolean(P.stepSeconds);$('bpm').value=P.bpm??'';$('seedv').textContent=P.seed;
   const brand = document.querySelector('.brand');
   brand.dataset.route = P.id;

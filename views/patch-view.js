@@ -82,8 +82,9 @@ function fitWires(){const h=$('wires');if(!h||!WIREMODE||h.hidden)return;if(docu
   const frame=appFrame(),top=h.getBoundingClientRect().top;h.style.height=Math.max(document.documentElement.dataset.frame?0:260,(frame.bottom-top)/frameScale()-(document.documentElement.dataset.frame?document.body.scrollTop:scrollY))+'px';}
 addEventListener('resize',()=>fitWires());
 function applyPan(){const l=$('wpan');if(l)l.style.transform=panMode()?`translate(${PAN.x}px,${PAN.y}px)`:'';
+  if(exportFrame)return;
   clearTimeout(panSaveT);panSaveT=setTimeout(()=>{try{localStorage.setItem('ff-patch-pan',JSON.stringify({x:Math.round(PAN.x),y:Math.round(PAN.y)}));}catch(e){}},150);}
-function setZoom(z,cx,cy){const old=ZOOM;ZOOM=Math.max(.01,Math.min(2.5,Math.round(z*100)/100));savedZoom=ZOOM;try{localStorage.setItem('ff-patch-zoom',ZOOM);}catch(e){}
+function setZoom(z,cx,cy){const old=ZOOM;ZOOM=Math.max(.01,Math.min(2.5,Math.round(z*100)/100));savedZoom=ZOOM;try{if(!exportFrame)localStorage.setItem('ff-patch-zoom',ZOOM);}catch(e){}
   $('zVal').textContent=Math.round(ZOOM*100)+'%';document.documentElement.style.setProperty('--mz',ZOOM);
   if(WIREMODE&&WZ){const host=$('wires'),k=ZOOM/old,ax=cx!=null?cx/frameScale():host.clientWidth/2,ay=cy!=null?cy:innerHeight/2;
     WZ.apply();if(panMode()){const ay2=cy!=null?(cy-host.getBoundingClientRect().top)/frameScale():host.clientHeight/2;PAN.x=ax-(ax-PAN.x)*k;PAN.y=ay2-(ay2-PAN.y)*k;applyPan();return;}

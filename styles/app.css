@@ -82,6 +82,7 @@ body.ui-off .scene-strip{
   border-bottom:0;
 }
 body.ui-off .unhide{display:inline-flex}
+html.recording-sequence #showUI{display:none}
 html:has(body.ui-off),body.ui-off{overflow:hidden;overscroll-behavior:none}
 body.ui-off .wires{position:fixed;inset:0;margin:0;overflow:hidden;z-index:5;background:var(--bg);touch-action:none;min-height:0!important;cursor:default}
 body.ui-off .wires.grab,body.ui-off .wires.grab .wwin{cursor:grab}
@@ -422,3 +423,15 @@ html[data-frame="portrait"] .flock-visuals:has(.olympus-window){grid-template-co
 /* OLYMPUS tubes: a touch of softness, as if seen through thick curved glass */
 .olympus-window .flock-canvas{filter:blur(.5px) saturate(1.15) contrast(1.05)}
 .olympus-window{background:#090807}
+
+.export-dialog{width:min(400px,calc(100% - 32px));padding:16px;border:1px solid var(--edge2);background:var(--panel);color:var(--box)}
+.export-dialog form{display:grid;gap:12px}
+.export-dialog h2,.export-dialog p{margin:0}
+.export-dialog h2{font-size:var(--font-body)}
+.export-dialog p{font-size:var(--font-small)}
+.export-dialog progress{appearance:none;width:100%;height:6px;border:0;border-radius:0;background:var(--edge2);color:var(--box)}
+.export-dialog progress::-webkit-progress-bar{background:var(--edge2)}
+.export-dialog progress::-webkit-progress-value{background:var(--box)}
+.export-dialog progress::-moz-progress-bar{background:var(--box)}
+.export-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+.export-actions a{text-decoration:none}
